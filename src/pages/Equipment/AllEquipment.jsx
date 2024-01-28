@@ -82,7 +82,8 @@ export default function AllEquipment() {
   const [removalid, setremovalid] = useState()
   const [success, setsuccess] = useState(false)
   const [error, seterror] = useState(false);
-  const [loading,setloading] = useState(false)
+  const [loading, setloading] = useState(false)
+    const [deletion, setdeletion] = useState(false);
 
   const navigate = useNavigate()
 
@@ -130,6 +131,7 @@ export default function AllEquipment() {
           removalid
       )
       .then(() => {
+        setdeletion(!deletion);
         seterror(false)
         setsuccess(true);
       })
@@ -143,7 +145,7 @@ export default function AllEquipment() {
   
 useEffect(() => {
   getData();
-}, []);
+}, [deletion]);
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>

@@ -12,6 +12,7 @@ import AddMaterial from "./pages/Material/AddMaterial";
 import UpdateMaterial from "./pages/Material/UpdateMaterial";
 import AddLabour from "./pages/Labour/AddLabour";
 import UpdateLabour from "./pages/Labour/UpdateLabour";
+import UpdateWorkItems from "./pages/Work Item/UpdateWorkItem";
 function App() {
   return (
     <div>
@@ -23,7 +24,10 @@ function App() {
           ></Route>
           <Route path="/allmaterial" element={<AllMaterial />}></Route>
           <Route path="/addmaterial" element={<AddMaterial />}></Route>
-          <Route path="/updatematerial/:id" element={<UpdateMaterial />}></Route>
+          <Route
+            path="/updatematerial/:id"
+            element={<UpdateMaterial />}
+          ></Route>
 
           <Route path="/alllabour" element={<AllLabour />}></Route>
           <Route path="/addlabour" element={<AddLabour />}></Route>
@@ -37,7 +41,8 @@ function App() {
           ></Route>
 
           <Route path="/allworkitem" element={<AllWorkItems />}></Route>
-          <Route path="/createworkitem" element={<CreateWorkItems />}></Route>
+          <Route path="/addworkitem" element={<CreateWorkItems />}></Route>
+          <Route path="/updateworkitem/:id" element={<UpdateWorkItems />}></Route>
 
           <Route path="/testing" element={<Testing />}></Route>
         </Routes>

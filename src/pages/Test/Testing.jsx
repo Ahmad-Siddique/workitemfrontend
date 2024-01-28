@@ -25,7 +25,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { MenuItem, Select, TextField } from "@mui/material";
+import { Button, LinearProgress, MenuItem, Select, TextField } from "@mui/material";
 
 // import { mainListItems, secondaryListItems } from "./listItems";
 // import Chart from "./Chart";
@@ -56,13 +56,44 @@ const defaultTheme = createTheme();
 export default function Testing() {
     const [rows, setrows] = React.useState([]);
     const [item, setitem] = React.useState("")
-    const [quantity,setquantity] = React.useState()
+  const [quantity, setquantity] = React.useState()
+  const [data, setdata] = React.useState()
+  const [material, setmaterial] = React.useState();
+  const [labour, setlabour] = React.useState();
+  const [equipment, setequipment] = React.useState();
+  const [loading,setloading] = React.useState(false)
   const getData = async () => {
+    setloading(true)
     const response = await axios.get(
       process.env.REACT_APP_BACKEND_URL + "/workitem/allworkitem"
     );
     setrows(response.data);
+    setloading(false)
   };
+
+  const handleSubmit = async () => {
+    setloading(true)
+    console.log(item)
+    await axios
+      .post(process.env.REACT_APP_BACKEND_URL + "/workitem/testing", {
+        id: item,
+        quantity
+      })
+      .then((res) => {
+        console.log(res.data)
+        setdata(res.data)
+        setequipment(res.data.workItem.equipment)
+        setlabour(res.data.workItem.labour);
+        setmaterial(res.data.workItem.materials);
+        // seterror(false);
+        // setsuccess(true);
+      })
+      .catch(() => {
+        // setsuccess(false);
+        // seterror(true);
+      });
+    setloading(false)
+  }
 
   React.useEffect(() => {
     getData();
@@ -90,8 +121,11 @@ export default function Testing() {
             <Select
               labelId={`demo-simple-select-label`}
               id={`demo-simple-select`}
-              value={item.name}
-              onChange={(e) => setitem(e.target.value)}
+              value={item}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setitem(e.target.value);
+              }}
               label="Work Item"
             >
               {rows.map((data) => (
@@ -108,10 +142,179 @@ export default function Testing() {
               variant="outlined"
               type="number"
               value={quantity}
-              onChange={(e) =>
-                setquantity(e.target.value)
-              }
+              onChange={(e) => setquantity(e.target.value)}
             />
+            <br></br>
+            <br></br>
+            <Button type="submit" onClick={handleSubmit} variant="contained">
+              Submit
+            </Button>
+
+            <br></br>
+            <br></br>
+            {loading && <LinearProgress />}
+            <br></br>
+            <br></br>
+
+            {material && (
+              <>
+                <h4 style={{ marginTop: 20 }}>Materials</h4>
+
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Code</TableCell>
+                        <TableCell align="right">Name</TableCell>
+                        <TableCell align="right">Specs</TableCell>
+
+                        <TableCell align="right">Total Rate</TableCell>
+                        <TableCell align="right">Total Quantity</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {material.map((row) => (
+                        <TableRow
+                          key={row.name}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.material.code}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.material.name}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.material.specs}
+                          </TableCell>
+
+                          <TableCell align="right">
+                            {row.material.rate * quantity}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.quantity * quantity}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
+            )}
+
+            {labour && (
+              <>
+                <h4 style={{ marginTop: 20 }}>Labours</h4>
+
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Code</TableCell>
+                        <TableCell align="right">Name</TableCell>
+                        <TableCell align="right">Specs</TableCell>
+
+                        <TableCell align="right">Total Rate</TableCell>
+                        <TableCell align="right">Total Quantity</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {labour.map((row) => (
+                        <TableRow
+                          key={row.name}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.labour.code}
+                          </TableCell>
+                          <TableCell align="right">{row.labour.name}</TableCell>
+                          <TableCell align="right">
+                            {row.labour.specs}
+                          </TableCell>
+
+                          <TableCell align="right">
+                            {row.labour.rate * quantity}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.quantity * quantity}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
+            )}
+
+            {equipment && (
+              <>
+                <h4 style={{ marginTop: 20 }}>Equipments</h4>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Code</TableCell>
+                        <TableCell align="right">Name</TableCell>
+                        <TableCell align="right">Specs</TableCell>
+
+                        <TableCell align="right">Total Rate</TableCell>
+                        <TableCell align="right">Total Quantity</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {equipment.map((row) => (
+                        <TableRow
+                          key={row.name}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.equipment.code}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.equipment.name}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.equipment.specs}
+                          </TableCell>
+
+                          <TableCell align="right">
+                            {row.equipment.rate * quantity}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.quantity * quantity}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
+            )}
+            {data && (
+              <>
+                <div>
+                  <h3>Total Equipment Cost: {data.equipmentTotals[0]}</h3>
+                </div>
+
+                <div>
+                  <h3>Total Labour Cost: {data.labourTotals[0]}</h3>
+                </div>
+
+                <div>
+                  <h3>Total Material Cost: {data.materialTotals[0]}</h3>
+                </div>
+
+                <div>
+                  <h3>Grand Total: {data.grandTotal}</h3>
+                </div>
+              </>
+            )}
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>

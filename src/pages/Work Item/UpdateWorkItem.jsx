@@ -14,8 +14,16 @@ import Link from "@mui/material/Link";
 import Bars from "../../components/Bar/Bars";
 import axios from "axios";
 
-import { Alert, Button, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -45,29 +53,23 @@ const Copyright = (props) => {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function CreateWorkItems() {
-    const [name,setname] = React.useState('')
-    const [materials, setMaterials] = React.useState([
-      { material: '', quantity: "" },
-    ]);
-    const [labour, setlabour] = React.useState([
-      { labour: "", quantity: "" },
-    ]);
-    const [equipment, setequipment] = React.useState([
-      { equipment: "", quantity: "" },
-    ]);
+export default function UpdateWorkItems() {
+  const [name, setname] = React.useState("");
+  const [materials, setMaterials] = React.useState([
+    { material: "", quantity: "" },
+  ]);
+  const [labour, setlabour] = React.useState([{ labour: "", quantity: "" }]);
+  const [equipment, setequipment] = React.useState([
+    { equipment: "", quantity: "" },
+  ]);
 
-
-
-    const [allmaterials, setallmaterials] = React.useState([])
-    const [allequipments,setallequipments]  = React.useState([])
-  const [alllabours, setalllabours] = React.useState([])
+  const [allmaterials, setallmaterials] = React.useState([]);
+  const [allequipments, setallequipments] = React.useState([]);
+    const [alllabours, setalllabours] = React.useState([]);
+    const [loading,setloading] = React.useState(false)
   const [success, setsuccess] = React.useState(false);
   const [error, seterror] = React.useState(false);
-
- 
-  
-
+ const { id } = useParams();
   // const useStyles = makeStyles((theme) => ({
   //   container: {
   //     display: "flex",
@@ -76,100 +78,120 @@ export default function CreateWorkItems() {
   // }));
 
   // const classes = useStyles();
-    const navigate = useNavigate();
-    
+  const navigate = useNavigate();
 
-     const addMaterial = () => {
-       const newMaterial = { material: '', quantity: "" };
-       setMaterials([...materials, newMaterial]);
-    };
+  const addMaterial = () => {
+    const newMaterial = { material: "", quantity: "" };
+    setMaterials([...materials, newMaterial]);
+  };
 
-    const addEquipment = () => {
-      const newMaterial = { equipment: "", quantity: "" };
-      setequipment([...equipment, newMaterial]);
-    };
+  const addEquipment = () => {
+    const newMaterial = { equipment: "", quantity: "" };
+    setequipment([...equipment, newMaterial]);
+  };
 
-    const addLabour = () => {
-      const newMaterial = { labour: "", quantity: "" };
-      setlabour([...labour, newMaterial]);
-    };
-    
-    const handleMaterialChange = (index, field, value) => {
-      const updatedMaterials = [...materials];
-      updatedMaterials[index][field] = value;
-        setMaterials(updatedMaterials);
-        console.log(updatedMaterials)
-    };
+  const addLabour = () => {
+    const newMaterial = { labour: "", quantity: "" };
+    setlabour([...labour, newMaterial]);
+  };
 
+  const handleMaterialChange = (index, field, value) => {
+    const updatedMaterials = [...materials];
+    updatedMaterials[index][field] = value;
+    setMaterials(updatedMaterials);
+    console.log(updatedMaterials);
+  };
 
-    const handleEquipmentChange = (index, field, value) => {
-      const updatedMaterials = [...equipment];
-      updatedMaterials[index][field] = value;
-      setequipment(updatedMaterials);
-      console.log(updatedMaterials);
-    };
+  const handleEquipmentChange = (index, field, value) => {
+    const updatedMaterials = [...equipment];
+    updatedMaterials[index][field] = value;
+    setequipment(updatedMaterials);
+    console.log(updatedMaterials);
+  };
 
-    const handleLabourChange = (index, field, value) => {
-      const updatedMaterials = [...labour];
-      updatedMaterials[index][field] = value;
-      setlabour(updatedMaterials);
-      console.log(updatedMaterials);
-    };
+  const handleLabourChange = (index, field, value) => {
+    const updatedMaterials = [...labour];
+    updatedMaterials[index][field] = value;
+    setlabour(updatedMaterials);
+    console.log(updatedMaterials);
+  };
 
+  const getMaterial = async () => {
+    const response = await axios.get(
+      process.env.REACT_APP_BACKEND_URL + "/material/allmaterial"
+    );
+    setallmaterials(response.data);
+  };
 
-    const getMaterial = async () => {
-        const response = await axios.get(process.env.REACT_APP_BACKEND_URL + "/material/allmaterial")
-        setallmaterials(response.data)
-    }
+  const getEquipment = async () => {
+    const response = await axios.get(
+      process.env.REACT_APP_BACKEND_URL + "/equipment/allequipment"
+    );
+    setallequipments(response.data);
+  };
 
-    const getEquipment = async () => {
-      const response = await axios.get(
-        process.env.REACT_APP_BACKEND_URL + "/equipment/allequipment"
-      );
-      setallequipments(response.data);
-    };
+  const getLabour = async () => {
+    const response = await axios.get(
+      process.env.REACT_APP_BACKEND_URL + "/labour/alllabour"
+    );
+    setalllabours(response.data);
+  };
 
-    const getLabour = async () => {
-      const response = await axios.get(
-        process.env.REACT_APP_BACKEND_URL + "/labour/alllabour"
-      );
-      setalllabours(response.data);
-    };
+  React.useEffect(() => {
+    getLabour();
+    getEquipment();
+      getMaterial();
+      fetchData();
+  }, []);
 
+  const [age, setAge] = React.useState("");
 
-    React.useEffect(() => {
-        getLabour();
-        getEquipment();
-        getMaterial();
-    }, [])
-    
-
-    const [age, setAge] = React.useState("");
-
-    const handleChange = (event) => {
-      setAge(event.target.value);
-    };
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      
-        await axios
-          .post(process.env.REACT_APP_BACKEND_URL + "/workitem/addworkitem", {
-            name,
-            equipment,
-            materials,
-            labour,
-          })
-          .then(() => {
-            seterror(false);
-            setsuccess(true);
-          })
-          .catch(() => {
-            setsuccess(false);
-            seterror(true);
-          });
-  }
-  
+    e.preventDefault();
+
+    await axios
+      .put(
+        process.env.REACT_APP_BACKEND_URL + "/workitem/updateworkitem/" + id,
+        {
+          name,
+          equipment,
+          materials,
+          labour,
+        }
+      )
+      .then(() => {
+        seterror(false);
+        setsuccess(true);
+      })
+      .catch(() => {
+        setsuccess(false);
+        seterror(true);
+      });
+    };
+    
+    const fetchData = async () => {
+      setloading(true);
+      await axios
+        .get(process.env.REACT_APP_BACKEND_URL + "/workitem/getoneworkitem/" + id)
+          .then((res) => {
+            console.log(res.data)
+          setMaterials(res.data.materials);
+          setname(res.data.name);
+          setequipment(res.data.equipment);
+          setlabour(res.data.labour);
+          
+        })
+        .catch(() => {
+          seterror(true);
+        });
+
+      setloading(false);
+    };
+
   const removeMaterial = (index) => {
     const newMaterials = materials.filter((_, i) => i !== index);
     setMaterials(newMaterials);
@@ -204,7 +226,8 @@ export default function CreateWorkItems() {
           <Toolbar />
           <form>
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-              <h2>Create Work Items</h2>
+              <h2>Update Work Items</h2>
+              {loading && <LinearProgress />}
               {success && (
                 <Alert
                   icon={<CheckIcon fontSize="inherit" />}
@@ -219,11 +242,13 @@ export default function CreateWorkItems() {
                   Error Occured while Adding Work Item
                 </Alert>
               )}
-              <h4>Name</h4>
+              <InputLabel htmlFor="outlined-adornment-amount" shrink={!!name}>
+                Name
+              </InputLabel>
               <TextField
                 id="outlined-basic"
-                label="Enter name of work item"
                 variant="outlined"
+                value={name}
                 onChange={(e) => setname(e.target.value)}
               />
 
@@ -237,7 +262,7 @@ export default function CreateWorkItems() {
                   <Select
                     labelId={`demo-simple-select-label-${index}`}
                     id={`demo-simple-select-${index}`}
-                    value={material.material}
+                    value={material.material._id}
                     required
                     onChange={(e) =>
                       handleMaterialChange(index, "material", e.target.value)
@@ -279,7 +304,7 @@ export default function CreateWorkItems() {
                   <Select
                     labelId={`demo-simple-select-label-${index}`}
                     id={`demo-simple-select-${index}`}
-                    value={equipment.equipment}
+                    value={equipment.equipment._id}
                     required
                     onChange={(e) =>
                       handleEquipmentChange(index, "equipment", e.target.value)
@@ -326,7 +351,7 @@ export default function CreateWorkItems() {
                   <Select
                     labelId={`demo-simple-select-label-${index}`}
                     id={`demo-simple-select-${index}`}
-                    value={labour.labour}
+                    value={labour.labour._id}
                     required
                     onChange={(e) =>
                       handleLabourChange(index, "labour", e.target.value)

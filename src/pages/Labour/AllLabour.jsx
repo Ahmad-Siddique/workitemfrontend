@@ -73,6 +73,7 @@ export default function AllLabour() {
   const [success, setsuccess] = useState(false);
   const [error, seterror] = useState(false);
   const [loading, setloading] = useState(false);
+  const [deletion,setdeletion] = useState(false)
 
   const navigate = useNavigate();
 
@@ -105,6 +106,7 @@ export default function AllLabour() {
           removalid
       )
       .then(() => {
+        setdeletion(!deletion)
         seterror(false);
         setsuccess(true);
       })
@@ -112,11 +114,12 @@ export default function AllLabour() {
         setsuccess(false);
         seterror(true);
       });
+    
   };
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [deletion]);
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
