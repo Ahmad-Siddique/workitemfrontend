@@ -25,7 +25,13 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Button, LinearProgress, MenuItem, Select, TextField } from "@mui/material";
+import {
+  Button,
+  LinearProgress,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 
 // import { mainListItems, secondaryListItems } from "./listItems";
 // import Chart from "./Chart";
@@ -54,46 +60,73 @@ const Copyright = (props) => {
 const defaultTheme = createTheme();
 
 export default function Testing() {
-    const [rows, setrows] = React.useState([]);
-    const [item, setitem] = React.useState("")
-  const [quantity, setquantity] = React.useState()
-  const [data, setdata] = React.useState()
+  const [rows, setrows] = React.useState([]);
+  const [item, setitem] = React.useState("");
+  const [quantity, setquantity] = React.useState();
+  const [data, setdata] = React.useState();
   const [material, setmaterial] = React.useState();
   const [labour, setlabour] = React.useState();
   const [equipment, setequipment] = React.useState();
-  const [loading,setloading] = React.useState(false)
+  const [totalmaterial, settotalmaterial] = React.useState();
+  const [totalequipment, settotalequipment] = React.useState();
+  const [totallabour, settotallabour] = React.useState();
+  const [grandtotal,setgrandtotal] = React.useState()
+  const [loading, setloading] = React.useState(false);
   const getData = async () => {
-    setloading(true)
+    setloading(true);
     const response = await axios.get(
       process.env.REACT_APP_BACKEND_URL + "/workitem/allworkitem"
     );
     setrows(response.data);
-    setloading(false)
+    setloading(false);
   };
 
   const handleSubmit = async () => {
-    setloading(true)
-    console.log(item)
-    await axios
-      .post(process.env.REACT_APP_BACKEND_URL + "/workitem/testing", {
-        id: item,
-        quantity
-      })
-      .then((res) => {
-        console.log(res.data)
-        setdata(res.data)
-        setequipment(res.data.workItem.equipment)
-        setlabour(res.data.workItem.labour);
-        setmaterial(res.data.workItem.materials);
-        // seterror(false);
-        // setsuccess(true);
-      })
-      .catch(() => {
-        // setsuccess(false);
-        // seterror(true);
-      });
-    setloading(false)
-  }
+    setloading(true);
+    try {
+      const res = await axios.post(
+        process.env.REACT_APP_BACKEND_URL + "/workitem/testing",
+        {
+          id: item,
+          quantity,
+        }
+      );
+      console.log(res.data);
+      const workItemData = res.data.workItem;
+
+      // Update states with new data
+      setdata(workItemData); // Assuming you want to store the whole workItem object
+      setequipment(workItemData.equipment);
+      setlabour(workItemData.labour);
+      setmaterial(workItemData.materials);
+
+      // Calculate costs directly from the response
+      const materialCost = workItemData.materials.reduce((acc, curr) => {
+        return acc + curr.quantity * curr.material.rate;
+      }, 0);
+
+      const labourCost = workItemData.labour.reduce((acc, curr) => {
+        return acc + curr.quantity * parseFloat(curr.labour.rate);
+      }, 0);
+
+      const equipmentCost = workItemData.equipment.reduce((acc, curr) => {
+        return acc + curr.quantity * parseFloat(curr.equipment.rate);
+      }, 0);
+
+      settotalequipment(equipmentCost)
+      settotallabour(labourCost)
+      settotalmaterial(materialCost)
+      setgrandtotal((equipmentCost * quantity) + (labourCost*quantity) + (materialCost*quantity));
+      
+      console.log("Cost calculations complete");
+
+      // setsuccess(true); // Uncomment or modify as needed
+    } catch (error) {
+      console.error("Failed to load data", error);
+      // seterror(true); // Uncomment or modify as needed
+    }
+    setloading(false);
+  };
 
   React.useEffect(() => {
     getData();
@@ -191,7 +224,7 @@ export default function Testing() {
                           </TableCell>
 
                           <TableCell align="right">
-                            {row.material.rate * quantity}
+                            {row.material.rate * row.quantity * quantity}
                           </TableCell>
                           <TableCell align="right">
                             {row.quantity * quantity}
@@ -237,7 +270,7 @@ export default function Testing() {
                           </TableCell>
 
                           <TableCell align="right">
-                            {row.labour.rate * quantity}
+                            {row.labour.rate * row.quantity * quantity}
                           </TableCell>
                           <TableCell align="right">
                             {row.quantity * quantity}
@@ -284,7 +317,7 @@ export default function Testing() {
                           </TableCell>
 
                           <TableCell align="right">
-                            {row.equipment.rate * quantity}
+                            {row.equipment.rate * row.quantity * quantity}
                           </TableCell>
                           <TableCell align="right">
                             {row.quantity * quantity}
@@ -296,25 +329,34 @@ export default function Testing() {
                 </TableContainer>
               </>
             )}
-            {data && (
-              <>
-                <div>
-                  <h3>Total Equipment Cost: {data.equipmentTotals[0]}</h3>
-                </div>
 
-                <div>
-                  <h3>Total Labour Cost: {data.labourTotals[0]}</h3>
-                </div>
-
-                <div>
-                  <h3>Total Material Cost: {data.materialTotals[0]}</h3>
-                </div>
-
-                <div>
-                  <h3>Grand Total: {data.grandTotal}</h3>
-                </div>
-              </>
+            {totalequipment && (
+              <div>
+                <h3>Total Equipment Cost: {totalequipment * quantity}</h3>
+              </div>
             )}
+
+            {totallabour && (
+              <div>
+                <h3>Total Labour Cost: {totallabour * quantity}</h3>
+              </div>
+            )}
+
+            {totalmaterial && (
+              <div>
+                <h3>Total Material Cost: {totalmaterial * quantity}</h3>
+              </div>
+            )}
+
+            {totalequipment && (
+              <div>
+                <h3>
+                  Grand Total:{" "}
+                  {grandtotal}
+                </h3>
+              </div>
+            )}
+
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
