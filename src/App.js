@@ -13,6 +13,9 @@ import UpdateMaterial from "./pages/Material/UpdateMaterial";
 import AddLabour from "./pages/Labour/AddLabour";
 import UpdateLabour from "./pages/Labour/UpdateLabour";
 import UpdateWorkItems from "./pages/Work Item/UpdateWorkItem";
+import AllGeneralItems from "./pages/GeneralItems/AllGeneralItems";
+import AddGeneralItems from "./pages/GeneralItems/AddGeneralItems";
+import UpdateGeneralItems from "./pages/GeneralItems/UpdateGeneralItems";
 function App() {
   return (
     <div>
@@ -40,9 +43,19 @@ function App() {
             element={<UpdateEquipment />}
           ></Route>
 
+          <Route path="/allgeneralitems" element={<AllGeneralItems />}></Route>
+          <Route path="/addgeneralitems" element={<AddGeneralItems />}></Route>
+          <Route
+            path="/updategeneralitems/:id"
+            element={<UpdateGeneralItems />}
+          ></Route>
+
           <Route path="/allworkitem" element={<AllWorkItems />}></Route>
           <Route path="/addworkitem" element={<CreateWorkItems />}></Route>
-          <Route path="/updateworkitem/:id" element={<UpdateWorkItems />}></Route>
+          <Route
+            path="/updateworkitem/:id"
+            element={<UpdateWorkItems />}
+          ></Route>
 
           <Route path="/testing" element={<Testing />}></Route>
         </Routes>

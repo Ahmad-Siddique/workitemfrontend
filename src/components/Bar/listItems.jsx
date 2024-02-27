@@ -54,6 +54,19 @@ export const mainListItems = (
 
     <Link
       style={{ textDecoration: "none", color: "black" }}
+      to="/allgeneralitems"
+      underline="none"
+    >
+      <ListItemButton>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="General Items" />
+      </ListItemButton>
+    </Link>
+
+    <Link
+      style={{ textDecoration: "none", color: "black" }}
       to="/allworkitem"
       underline="none"
     >

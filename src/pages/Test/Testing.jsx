@@ -66,11 +66,13 @@ export default function Testing() {
   const [data, setdata] = React.useState();
   const [material, setmaterial] = React.useState();
   const [labour, setlabour] = React.useState();
+  const [generalitems, setgeneralitems] = React.useState();
   const [equipment, setequipment] = React.useState();
   const [totalmaterial, settotalmaterial] = React.useState();
   const [totalequipment, settotalequipment] = React.useState();
   const [totallabour, settotallabour] = React.useState();
-  const [grandtotal,setgrandtotal] = React.useState()
+  const [totalgeneralitems, settotalgeneralitems] = React.useState();
+  const [grandtotal, setgrandtotal] = React.useState();
   const [loading, setloading] = React.useState(false);
   const getData = async () => {
     setloading(true);
@@ -99,6 +101,7 @@ export default function Testing() {
       setequipment(workItemData.equipment);
       setlabour(workItemData.labour);
       setmaterial(workItemData.materials);
+      setgeneralitems(workItemData.generalitems);
 
       // Calculate costs directly from the response
       const materialCost = workItemData.materials.reduce((acc, curr) => {
@@ -113,11 +116,21 @@ export default function Testing() {
         return acc + curr.quantity * parseFloat(curr.equipment.rate);
       }, 0);
 
-      settotalequipment(equipmentCost)
-      settotallabour(labourCost)
-      settotalmaterial(materialCost)
-      setgrandtotal((equipmentCost * quantity) + (labourCost*quantity) + (materialCost*quantity));
-      
+      const generalitemsCost = workItemData.generalitems.reduce((acc, curr) => {
+        return acc + curr.quantity * parseFloat(curr.generalitems.rate);
+      }, 0);
+
+      settotalequipment(equipmentCost);
+      settotallabour(labourCost);
+      settotalmaterial(materialCost);
+      settotalgeneralitems(generalitemsCost)
+      setgrandtotal(
+        equipmentCost * quantity +
+          labourCost * quantity +
+        materialCost * quantity +
+        generalitemsCost * quantity
+      );
+
       console.log("Cost calculations complete");
 
       // setsuccess(true); // Uncomment or modify as needed
@@ -200,9 +213,11 @@ export default function Testing() {
                         <TableCell>Code</TableCell>
                         <TableCell align="right">Name</TableCell>
                         <TableCell align="right">Specs</TableCell>
+                        <TableCell align="right">Unit Quantity</TableCell>
+                        <TableCell align="right">Unit Rate</TableCell>
 
-                        <TableCell align="right">Total Rate</TableCell>
                         <TableCell align="right">Total Quantity</TableCell>
+                        <TableCell align="right">Total Rate</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -222,12 +237,20 @@ export default function Testing() {
                           <TableCell align="right">
                             {row.material.specs}
                           </TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">
+                            {row.material.rate.toLocaleString()}
+                          </TableCell>
 
                           <TableCell align="right">
-                            {row.material.rate * row.quantity * quantity}
+                            {" "}
+                            {(row.quantity * quantity).toLocaleString()}
                           </TableCell>
                           <TableCell align="right">
-                            {row.quantity * quantity}
+                            {(
+                              row.material.rate *
+                              (row.quantity * quantity)
+                            ).toLocaleString()}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -248,9 +271,11 @@ export default function Testing() {
                         <TableCell>Code</TableCell>
                         <TableCell align="right">Name</TableCell>
                         <TableCell align="right">Specs</TableCell>
+                        <TableCell align="right">Unit Quantity</TableCell>
+                        <TableCell align="right">Unit Rate</TableCell>
 
-                        <TableCell align="right">Total Rate</TableCell>
                         <TableCell align="right">Total Quantity</TableCell>
+                        <TableCell align="right">Total Rate</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -268,12 +293,19 @@ export default function Testing() {
                           <TableCell align="right">
                             {row.labour.specs}
                           </TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">
+                            {Number(row.labour.rate).toLocaleString()}
+                          </TableCell>
 
                           <TableCell align="right">
-                            {row.labour.rate * row.quantity * quantity}
+                            {row.quantity * quantity}
                           </TableCell>
                           <TableCell align="right">
-                            {row.quantity * quantity}
+                            {(
+                              row.labour.rate *
+                              (row.quantity * quantity)
+                            ).toLocaleString()}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -293,9 +325,11 @@ export default function Testing() {
                         <TableCell>Code</TableCell>
                         <TableCell align="right">Name</TableCell>
                         <TableCell align="right">Specs</TableCell>
+                        <TableCell align="right">Unit Quantity</TableCell>
+                        <TableCell align="right">Unit Rate</TableCell>
 
+                        <TableCell align="right">Total Quantity </TableCell>
                         <TableCell align="right">Total Rate</TableCell>
-                        <TableCell align="right">Total Quantity</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -315,12 +349,75 @@ export default function Testing() {
                           <TableCell align="right">
                             {row.equipment.specs}
                           </TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">
+                            {Number(row.equipment.rate).toLocaleString()}
+                          </TableCell>
 
                           <TableCell align="right">
-                            {row.equipment.rate * row.quantity * quantity}
+                            {row.quantity * quantity}
                           </TableCell>
                           <TableCell align="right">
+                            {(
+                              row.equipment.rate *
+                              (row.quantity * quantity)
+                            ).toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
+            )}
+
+            {generalitems && (
+              <>
+                <h4 style={{ marginTop: 20 }}>General Items</h4>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Code</TableCell>
+                        <TableCell align="right">Name</TableCell>
+                        <TableCell align="right">Specs</TableCell>
+                        <TableCell align="right">Unit Quantity</TableCell>
+                        <TableCell align="right">Unit Rate</TableCell>
+
+                        <TableCell align="right">Total Quantity </TableCell>
+                        <TableCell align="right">Total Rate</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {generalitems.map((row) => (
+                        <TableRow
+                          key={row.name}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.generalitems.code}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.generalitems.name}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.generalitems.specs}
+                          </TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">
+                            {Number(row.generalitems.rate).toLocaleString()}
+                          </TableCell>
+
+                          <TableCell align="right">
                             {row.quantity * quantity}
+                          </TableCell>
+                          <TableCell align="right">
+                            {(
+                              row.generalitems.rate *
+                              (row.quantity * quantity)
+                            ).toLocaleString()}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -332,28 +429,42 @@ export default function Testing() {
 
             {totalequipment && (
               <div>
-                <h3>Total Equipment Cost: {totalequipment * quantity}</h3>
+                <h3>
+                  Total Equipment Cost:{" "}
+                  {(totalequipment * quantity).toLocaleString()}
+                </h3>
               </div>
             )}
 
             {totallabour && (
               <div>
-                <h3>Total Labour Cost: {totallabour * quantity}</h3>
+                <h3>
+                  Total Labour Cost: {(totallabour * quantity).toLocaleString()}
+                </h3>
               </div>
             )}
 
             {totalmaterial && (
               <div>
-                <h3>Total Material Cost: {totalmaterial * quantity}</h3>
+                <h3>
+                  Total Material Cost:{" "}
+                  {(totalmaterial * quantity).toLocaleString()}
+                </h3>
+              </div>
+            )}
+
+            {totalgeneralitems && (
+              <div>
+                <h3>
+                  Total General Items Cost:{" "}
+                  {(totalgeneralitems * quantity).toLocaleString()}
+                </h3>
               </div>
             )}
 
             {totalequipment && (
               <div>
-                <h3>
-                  Grand Total:{" "}
-                  {grandtotal}
-                </h3>
+                <h3>Grand Total: {grandtotal.toLocaleString()}</h3>
               </div>
             )}
 

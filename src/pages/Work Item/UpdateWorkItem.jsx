@@ -63,10 +63,15 @@ export default function UpdateWorkItems() {
     { equipment: "", quantity: "" },
   ]);
 
+  const [generalitems, setgeneralitems] = React.useState([
+    { generalitems: "", quantity: "" },
+  ]);
+
   const [allmaterials, setallmaterials] = React.useState([]);
   const [allequipments, setallequipments] = React.useState([]);
     const [alllabours, setalllabours] = React.useState([]);
-    const [loading,setloading] = React.useState(false)
+  const [allgeneralitems, setallgeneralitems] = React.useState([]);  
+  const [loading, setloading] = React.useState(false)
   const [success, setsuccess] = React.useState(false);
   const [error, seterror] = React.useState(false);
  const { id } = useParams();
@@ -95,6 +100,11 @@ export default function UpdateWorkItems() {
     setlabour([...labour, newMaterial]);
   };
 
+   const addGeneralItems = () => {
+     const newGeneralItem = { generalitems: "", quantity: "" };
+     setgeneralitems([...generalitems, newGeneralItem]);
+   };
+
   const handleMaterialChange = (index, field, value) => {
     const updatedMaterials = [...materials];
     updatedMaterials[index][field] = value;
@@ -114,6 +124,13 @@ export default function UpdateWorkItems() {
     updatedMaterials[index][field] = value;
     setlabour(updatedMaterials);
     console.log(updatedMaterials);
+  };
+
+  const handleGeneralItemsChange = (index, field, value) => {
+    const updatedGeneralItems = [...generalitems];
+    updatedGeneralItems[index][field] = value;
+    setgeneralitems(updatedGeneralItems);
+    console.log(updatedGeneralItems);
   };
 
   const getMaterial = async () => {
@@ -137,10 +154,18 @@ export default function UpdateWorkItems() {
     setalllabours(response.data);
   };
 
+  const getGeneralItem = async () => {
+    const response = await axios.get(
+      process.env.REACT_APP_BACKEND_URL + "/generalitems/allgeneralitems"
+    );
+    setallgeneralitems(response.data);
+  };
+
   React.useEffect(() => {
     getLabour();
     getEquipment();
-      getMaterial();
+    getMaterial();
+    getGeneralItem();
       fetchData();
   }, []);
 
@@ -161,6 +186,7 @@ export default function UpdateWorkItems() {
           equipment,
           materials,
           labour,
+          generalitems
         }
       )
       .then(() => {
@@ -182,7 +208,8 @@ export default function UpdateWorkItems() {
           setMaterials(res.data.materials);
           setname(res.data.name);
           setequipment(res.data.equipment);
-          setlabour(res.data.labour);
+            setlabour(res.data.labour);
+            setgeneralitems(res.data.generalitems);
           
         })
         .catch(() => {
@@ -205,6 +232,11 @@ export default function UpdateWorkItems() {
   const removeLabour = (index) => {
     const newLabour = labour.filter((_, i) => i !== index);
     setlabour(newLabour);
+  };
+
+  const removeGeneralItem = (index) => {
+    const newGeneralItem = generalitems.filter((_, i) => i !== index);
+    setgeneralitems(newGeneralItem);
   };
 
   return (
@@ -384,6 +416,62 @@ export default function UpdateWorkItems() {
               <br></br>
               <Button variant="contained" color="primary" onClick={addLabour}>
                 Add Labour
+              </Button>
+
+              <br></br>
+
+              {generalitems.map((generalitems, index) => (
+                <div key={index}>
+                  <h4>Add General Item {index + 1}</h4>
+                  <Select
+                    labelId={`demo-simple-select-label-${index}`}
+                    id={`demo-simple-select-${index}`}
+                    value={generalitems.generalitems}
+                    required
+                    onChange={(e) =>
+                      handleGeneralItemsChange(
+                        index,
+                        "generalitems",
+                        e.target.value
+                      )
+                    }
+                    label="Labour"
+                  >
+                    {allgeneralitems.map((data) => (
+                      <MenuItem key={data._id} value={data._id}>
+                        {data.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <TextField
+                    style={{ marginLeft: 30 }}
+                    id={`outlined-basic-${index}`}
+                    label="Quantity"
+                    variant="outlined"
+                    type="number"
+                    required
+                    value={generalitems.quantity}
+                    onChange={(e) =>
+                      handleGeneralItemsChange(
+                        index,
+                        "quantity",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Button onClick={() => removeGeneralItem(index)}>
+                    Remove General Item
+                  </Button>
+                </div>
+              ))}
+
+              <br></br>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={addGeneralItems}
+              >
+                Add General Item
               </Button>
 
               <br></br>

@@ -67,19 +67,20 @@ const Copyright = (props) => {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function AllLabour() {
+export default function AllGeneralItems() {
   const [rows, setrows] = useState([]);
   const [removalid, setremovalid] = useState();
   const [success, setsuccess] = useState(false);
   const [error, seterror] = useState(false);
   const [loading, setloading] = useState(false);
+  const [deletion, setdeletion] = useState(false);
 
   const navigate = useNavigate();
 
   const getData = async () => {
     setloading(true);
     const response = await axios.get(
-      process.env.REACT_APP_BACKEND_URL + "/workitem/allworkitem"
+      process.env.REACT_APP_BACKEND_URL + "/generalitems/allgeneralitems"
     );
     setrows(response.data);
     setloading(false);
@@ -96,13 +97,27 @@ export default function AllLabour() {
     setOpen(false);
   };
 
+  const ModalOpen = (id) => {
+    console.log("Hehe");
+    return (
+      <React.Fragment>
+        <Button variant="outlined" onClick={handleClickOpen}>
+          Open alert dialog
+        </Button>
+      </React.Fragment>
+    );
+  };
+
   const handleDelete = async () => {
     handleClose();
     await axios
       .delete(
-        process.env.REACT_APP_BACKEND_URL + "/workitem/deleteworkitem/" + removalid
+        process.env.REACT_APP_BACKEND_URL +
+          "/generalitems/deletegeneralitems/" +
+          removalid
       )
       .then(() => {
+        setdeletion(!deletion);
         seterror(false);
         setsuccess(true);
       })
@@ -114,7 +129,7 @@ export default function AllLabour() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [deletion]);
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
@@ -133,36 +148,36 @@ export default function AllLabour() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <h2>Work Items</h2>
+            <h2>General Items</h2>
 
             {success && (
               <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-                Work Item has been Deleted
+                General Item has been Deleted
               </Alert>
             )}
 
             {error && (
               <Alert icon={<CloseIcon fontSize="inherit" />} severity="error">
-                Error Occured while deleting work item
+                Error Occured while deleting general item
               </Alert>
             )}
             <Fab
-              onClick={() => navigate("/addworkitem")}
+              onClick={() => navigate("/addgeneralitems")}
               variant="extended"
               color="primary"
               aria-label="add"
             >
-              <AddIcon /> Add Work Item
+              <AddIcon /> Add General Item
             </Fab>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
+                    <TableCell>Code</TableCell>
                     <TableCell align="right">Name</TableCell>
-                    <TableCell align="right">Material</TableCell>
-                    <TableCell align="right">Labour</TableCell>
-                    <TableCell align="right">Equipment</TableCell>
-                    <TableCell align="right">General Items</TableCell>
+                    <TableCell align="right">Specs</TableCell>
+                    <TableCell align="right">Unit</TableCell>
+                    <TableCell align="right">Rate</TableCell>
                     <TableCell align="center">Update</TableCell>
                     <TableCell align="center">Delete</TableCell>
                   </TableRow>
@@ -173,20 +188,18 @@ export default function AllLabour() {
                       key={row.name}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell component="th" scope="row">
+                        {row.code}
+                      </TableCell>
                       <TableCell align="right">{row.name}</TableCell>
-                      <TableCell align="right">
-                        {row.materials && row.materials.length}
-                      </TableCell>
-                      <TableCell align="right">{row.labour.length}</TableCell>
-                      <TableCell align="right">
-                        {row.equipment.length}
-                      </TableCell>
-                      <TableCell align="right">
-                        {row.generalitems ? row.generalitems.length : 0}
-                      </TableCell>
+                      <TableCell align="right">{row.specs}</TableCell>
+                      <TableCell align="right">{row.unit}</TableCell>
+                      <TableCell align="right">{row.rate}</TableCell>
                       <TableCell align="center">
                         <Button
-                          onClick={() => navigate("/updateworkitem/" + row._id)}
+                          onClick={() =>
+                            navigate("/updategeneraltitems/" + row._id)
+                          }
                           variant="contained"
                         >
                           Update
@@ -226,11 +239,11 @@ export default function AllLabour() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Delete Equipment"}
+            {"Delete General Item"}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Are you sure to delete this Work Item?
+              Are you sure to delete this general item?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
